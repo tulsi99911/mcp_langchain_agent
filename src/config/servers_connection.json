@@ -1,0 +1,29 @@
+{
+    "Math_ops": {
+        "command": "python",
+        "args": ["mathserver.py"],
+        "transport": "stdio"
+    },
+    "Google_src": {
+        "command": "python",
+        "args": ["google_search_server.py", "stdio"],
+        "transport": "stdio",
+        "env": {
+            "GOOGLE_API_KEY": "${GOOGLE_API_KEY}",
+            "GOOGLE_ENGINE_ID": "${GOOGLE_ENGINE_ID}"
+        }
+    },
+    "Weather_uptd": {
+        "command": "python",
+        "args": ["weather_server.py"],
+        "transport": "stdio",
+        "env": {
+            "WEATHER_API_KEY": "${WEATHER_API_KEY}"
+        }
+    },
+    "airbnb": {
+        "command": "npx",
+        "args": ["-y", "@openbnb/mcp-server-airbnb", "--ignore-robots-txt"],
+        "transport": "stdio"
+    }
+}

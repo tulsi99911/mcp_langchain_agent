@@ -1,0 +1,139 @@
+name: CI/CD for Dockerized LangChain Agent Connected to Multiple MCP Servers
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  dockerbuild:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Build The Docker Image
+      run: docker build . --file Dockerfile --tag langchain-mcp-agent:$(date +%s)
+
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y curl
+
+    - name: Install Node.js (for Airbnb MCP server)
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.17.1'
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-asyncio
+
+    - name: Create test environment file
+      run: |
+        echo "GROQ_API_KEY=test_groq_key" >> .env
+        echo "GOOGLE_API_KEY=test_key" > .env
+        echo "GOOGLE_ENGINE_ID=test_engine" >> .env
+        echo "WEATHER_API_KEY=test_weather_key" >> .env
+
+    - name: Run Python syntax check
+      run: |
+        python -m py_compile src/main.py
+        python -m py_compile src/client.py
+        python -m py_compile src/google_search_server.py
+        python -m py_compile src/mathserver.py
+        python -m py_compile src/weather_server.py
+
+    - name: Test MCP servers functionality
+      run: |
+        cd src
+        python -c "import mathserver; print('Math server imports successfully')"
+        python -c "import weather_server; print('Weather server imports successfully')"
+        python -c "import google_search_server; print('Google search server imports successfully')"
+
+    - name: Run unit tests (if test files exist)
+      run: |
+        if [ -d "tests" ]; then
+          pytest tests/
+        else
+          echo "No tests directory found, skipping unit tests"
+        fi
+      continue-on-error: true
+
+  build-and-publish:
+    needs: [dockerbuild, build-and-test]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ secrets.DOCKER_USERNAME }}/langchain-mcp-agent
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Image digest
+      run: echo ${{ steps.build-and-publish.outputs.digest }}
+
+  security-scan:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'

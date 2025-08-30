@@ -1,0 +1,14 @@
+langchain-groq
+langchain-mcp-adapters
+mcp
+langgraph
+fastmcp>=2.0.0
+langchain-community
+tavily-python
+python-dotenv
+aiofiles
+duckduckgo-search
+wikipedia-api
+requests
+streamlit
+
