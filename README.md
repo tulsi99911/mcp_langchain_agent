@@ -24,18 +24,6 @@ and travel recommendations through a unified conversational interface.
 
 ### Architecture
 <img width="677" height="333" alt="Image" src="https://github.com/user-attachments/assets/4613241e-7bde-4b71-85aa-8a5ad6b6a4dd" />
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   User Input    │───▶│  LangChain Agent │───▶│   Tool Router   │
-└─────────────────┘    │  (Groq Llama3)   │    └─────────────────┘
-                       └──────────────────┘            │
-                                                       ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    MultiServerMCPClient                         │
-├─────────────────┬─────────────────┬─────────────────┬───────────┤
-│   Math Server   │  Weather Server │ Google Search   │  Airbnb   │
-│   (Custom)      │   (Custom)      │   (Custom)      │ (Remote)  │
-└─────────────────┴─────────────────┴─────────────────┴───────────┘
-
 
 ### Prerequisites
   - Python: 3.13+
@@ -50,5 +38,6 @@ and travel recommendations through a unified conversational interface.
 
 ### License
   - This project is intended as a prototype and demonstration of MCP architecture with LangChain agents.
+
 
 
