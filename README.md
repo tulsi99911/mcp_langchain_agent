@@ -43,11 +43,10 @@ and travel recommendations through a unified conversational interface.
 
 ### Example Queries
   - Weather: "What's the current temperature in Gurugram, India?"
-  - Search: "Find recent news about AI developments"
-  - Math: "Calculate 15 multiplied by 23"
-  - Images: "Search for images of mountain landscapes of Himachal Pradesh, india?"
-  - Travel: "Find accommodations in Paris"
-  - Site Search: "Search for Python tutorials on stackoverflow.com"
+  - Search: "Find recent news about AI developments?"
+  - Math: "Calculate 15 multiplied by 23?"
+  - Search: "Search for Python tutorials on stackoverflow.com?"
 
 ### License
   - This project is intended as a prototype and demonstration of MCP architecture with LangChain agents.
+
