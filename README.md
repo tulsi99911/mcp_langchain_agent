@@ -7,7 +7,7 @@ and travel recommendations through a unified conversational interface.
 
 ### Features
   - Multi-Server Architecture: Connects to 4 different MCP servers
-  - Dual Interface: Both CLI and Web UI (Streamlit) options
+  - Dual Interface: Both CLI (client.py) and Web UI (Streamlit [main.py]) options
   - Real-time Tool Integration: 12 tools across multiple domains
   - Intelligent Agent: Uses Groq's Llama3-70b model with ReAct pattern
   - Docker Support: Fully containerized deployment
@@ -38,6 +38,7 @@ and travel recommendations through a unified conversational interface.
 
 ### License
   - This project is intended as a prototype and demonstration of MCP architecture with LangChain agents.
+
 
 
 
