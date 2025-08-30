@@ -28,7 +28,8 @@ RUN uv pip install --no-cache-dir --system -r requirements.txt
 
 # Copy source code and configuration
 COPY src/ ./src/
-COPY .env .env
+COPY .env* ./
+# COPY .env .env
 
 # Set environment variables for Streamlit
 ENV STREAMLIT_SERVER_PORT=8501
